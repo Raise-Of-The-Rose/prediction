@@ -83,6 +83,7 @@
     <script>
      let xsInput = [];
      let ysInput = [];
+     let predictInput = null; // Declare predictInput in the outer scope
 
      document.getElementById('inputForm').addEventListener('submit', async function (event) {
          event.preventDefault();
@@ -93,7 +94,7 @@
              ysInput = document.getElementById('ys').value.split(',').map(Number).slice(0, 10);
          }
 
-         let predictInput = Number(document.getElementById('predict').value);
+         predictInput = Number(document.getElementById('predict').value);
 
          const model = tf.sequential();
          model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
