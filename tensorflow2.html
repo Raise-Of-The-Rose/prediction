@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TensorFlow.js Prediction</title>
+    <style>
+      body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 300px;
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    background: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+#results {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TensorFlow.js Prediction</h1>
+        <form id="inputForm">
+            <label for="xs">Enter 10 X values (comma separated):</label>
+            <input type="text" id="xs" name="xs" required>
+            
+            <label for="ys">Enter 10 Y values (comma separated):</label>
+            <input type="text" id="ys" name="ys" required>
+            
+            <label for="predict">Enter a value to predict:</label>
+            <input type="number" id="predict" name="predict" required>
+            
+            <button type="submit">Predict</button>
+        </form>
+        
+        <div id="results"></div>
+        
+        <form id="updateForm">
+            <label for="trueValue">Enter the true value for the prediction:</label>
+            <input type="number" id="trueValue" name="trueValue" required>
+            
+            <button type="submit">Update Model</button>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script>
+     let xsInput = [];
+let ysInput = [];
+
+document.getElementById('inputForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    // Get initial xs and ys values only if they are not already set
+    if (xsInput.length === 0 && ysInput.length === 0) {
+        xsInput = document.getElementById('xs').value.split(',').map(Number).slice(0, 10);
+        ysInput = document.getElementById('ys').value.split(',').map(Number).slice(0, 10);
+    }
+
+    let predictInput = Number(document.getElementById('predict').value);
+
+    const model = tf.sequential();
+    model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+    model.compile({ optimizer: tf.train.sgd(0.01), loss: 'meanSquaredError' });
+
+    const xs = tf.tensor2d(xsInput, [xsInput.length, 1]);
+    const ys = tf.tensor2d(ysInput, [ysInput.length, 1]);
+
+    await model.fit(xs, ys, { epochs: 500, verbose: 0 });
+
+    const result = model.predict(tf.tensor2d([predictInput], [1, 1]));
+    const resultValue = result.dataSync()[0];
+
+    document.getElementById('results').innerText = `Predicted value: ${resultValue.toFixed(2)}`;
+
+    document.getElementById('updateForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        let trueValue = Number(document.getElementById('trueValue').value);
+
+        // Append the new values and maintain the array length to 10
+        if (xsInput.length >= 10) xsInput.shift();
+        if (ysInput.length >= 10) ysInput.shift();
+
+        xsInput.push(predictInput);
+        ysInput.push(trueValue);
+
+        // Update the display
+        document.getElementById('results').innerText = `
+            Predicted value: ${resultValue.toFixed(2)}\n
+            Updated xs: ${xsInput}\n
+            Updated ys: ${ysInput}
+        `;
+    }, { once: true });
+});
+    </script>
+</body>
+</html>
