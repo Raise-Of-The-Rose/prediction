@@ -84,6 +84,7 @@
      let xsInput = [];
      let ysInput = [];
      let predictInput = null; // Declare predictInput in the outer scope
+     let resultValue = null;  // Declare resultValue in the outer scope
 
      document.getElementById('inputForm').addEventListener('submit', async function (event) {
          event.preventDefault();
@@ -107,7 +108,7 @@
              await model.fit(xs, ys, { epochs: 500, verbose: 0 });
 
              const result = model.predict(tf.tensor2d([predictInput], [1, 1]));
-             const resultValue = result.dataSync()[0];
+             resultValue = result.dataSync()[0];
 
              document.getElementById('results').innerText = `Predicted value: ${resultValue.toFixed(2)}`;
          } catch (error) {
