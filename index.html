@@ -80,7 +80,7 @@ button:hover {
             <button type="submit">Update Model</button>
         </form>
     </div>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 <script>
     let xsInput = [];
     let ysInput = [];
@@ -95,10 +95,21 @@ button:hover {
             ysInput = document.getElementById('ys').value.split(',').map(Number).slice(0, 10);
         }
 
+        // Validate the input arrays
+        if (xsInput.some(isNaN) || ysInput.some(isNaN)) {
+            alert("Invalid numbers in xs or ys inputs");
+            return;
+        }
+
         let predictInput = Number(document.getElementById('predict').value);
 
         if (isNaN(predictInput)) {
             alert("Invalid input for prediction");
+            return;
+        }
+
+        if (xsInput.length < 2 || ysInput.length < 2) {
+            alert("Not enough data to train the model");
             return;
         }
 
@@ -114,6 +125,11 @@ button:hover {
         try {
             const result = model.predict(tf.tensor2d([predictInput], [1, 1]));
             resultValue = result.dataSync()[0];
+
+            if (isNaN(resultValue)) {
+                throw new Error("Prediction resulted in NaN");
+            }
+
             document.getElementById('results').innerText = `Predicted value: ${resultValue.toFixed(2)}`;
         } catch (error) {
             console.error('Error during prediction:', error);
