@@ -80,10 +80,11 @@ button:hover {
             <button type="submit">Update Model</button>
         </form>
     </div>
-   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 <script>
     let xsInput = [];
     let ysInput = [];
+    let resultValue = null; // Moved to a higher scope
 
     document.getElementById('inputForm').addEventListener('submit', async function (event) {
         event.preventDefault();
@@ -112,7 +113,7 @@ button:hover {
 
         try {
             const result = model.predict(tf.tensor2d([predictInput], [1, 1]));
-            const resultValue = result.dataSync()[0];
+            resultValue = result.dataSync()[0];
             document.getElementById('results').innerText = `Predicted value: ${resultValue.toFixed(2)}`;
         } catch (error) {
             console.error('Error during prediction:', error);
@@ -148,5 +149,6 @@ button:hover {
         }, { once: true });
     });
 </script>
+
 </body>
 </html>
